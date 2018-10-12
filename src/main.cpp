@@ -135,9 +135,13 @@ void perform_experiment(data_header const & exp, polymer_trial &trial, int i) {
 void list_experiments() {
   vector<data_header> experiments = get_experiments();
 
+  ofstream handle("experiments.json");
+  cereal::JSONOutputArchive archive(handle);
   for (auto &exp : experiments) {
     std::cout << exp << std::endl;
+    archive(CEREAL_NVP(exp.p));
   }
+  handle.close();
 }
 
 polymer_trial* read_experiment_raw(const char* path) {
@@ -365,10 +369,7 @@ vector <data_header> get_experiments() {
       //header.p.k_BT = 1e-2;
 
       char title[1024];
-      sprintf(title, "Semiflexible alpha %.1e beta %.1e C %.1e ", 
-          header.p.alpha(),
-          header.p.beta(),
-          header.p.C);
+      sprintf(title, "Semiflexible C %.1e ", header.p.C);
       header.p.title = title;
       header.p.tex_title = "Semiflexible";
       experiments.push_back(header);

@@ -2,5 +2,6 @@
 pypolymer.py
 _pypolymer.so
 *_wrap.cxx
+.ycm_extra_conf.py
 /bin
 /obj
