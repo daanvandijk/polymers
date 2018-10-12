@@ -32,6 +32,7 @@ void help() {
   cout << "  experiment : perform predefined experiment\n";
   cout << "  read [title] : perform analysis of trials\n";
   cout << "  list : list experiments\n";
+  cout << "  tex : list experiments in latex table format\n";
 }
 
 void perform_experiments() {
@@ -193,6 +194,41 @@ analysis::ensemble* read_experiment(const char *path) {
   return ensemble;
 }
 
+void tex() {
+  auto experiments = get_experiments();
+  cout << "\\begin{table}[h]" << endl;
+  cout << "\\centering" << endl;
+  cout << "\\footnotesize" << endl;
+  cout << "\\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}" << endl;
+  cout << "\\hline" << endl;
+  cout << "Name & $N_p$ & $N_t$ & $dt$ & $a$ & $k$ & $C$ & $k_BT$ & $l$ & $\\mu_l$ & $\\sigma_l$ & $\\mu_\\theta$ & $\\sigma_\\theta$ & Trials \\\\ \\hline" << endl;
+
+  for (auto &e: experiments) {
+    if (e.p.tex_title == "") continue;
+    cout.precision(3);
+    cout << 
+      e.p.tex_title << " & " << 
+      ((double) e.p.Np) << " & " << 
+      ((double) e.p.Nt) << " & " << 
+      e.p.dt << " & " <<
+      e.p.a << " & " <<
+      e.p.k << " & " <<
+      e.p.C << " & " <<
+      e.p.k_BT << " & " <<
+      e.p.l << " & " <<
+      e.p.mu_l << " & " <<
+      e.p.sigma_l << " & " <<
+      e.p.mu_theta << " & " <<
+      e.p.sigma_theta << " & " <<
+      e.p.Ntrials << " \\\\" << endl;
+  }
+  cout << "\\hline" << endl; 
+  cout << "\\end{tabular}" << endl;
+  cout << "\\caption{Experiment parameters}" << endl;
+  cout << "\\label{table:experiment parameters}" << endl;
+  cout << "\\end{table}" << endl;
+}
+
 int main(int argc, char **argv) {
   if (argc == 1) 
     help();
@@ -205,6 +241,8 @@ int main(int argc, char **argv) {
     }
     else if (strcmp(argv[1], "list") == 0) 
       list_experiments();
+    else if (strcmp(argv[1], "tex") == 0)
+      tex();
     else
       help();
   }
@@ -231,6 +269,7 @@ vector <data_header> get_experiments() {
   header_base.p.mu_theta = 0.0;
   header_base.p.sigma_theta = 0.0;
   header_base.p.space = "log";
+  header_base.p.tex_title = "";
 
 
   // Standard Rouse model for different dt
@@ -243,6 +282,8 @@ vector <data_header> get_experiments() {
       char title[1024];
       sprintf(title, "Rouse dt %.1e", dt);
       header.p.title = title;
+      if (abs(dt - 1e-8) < 1e-10 || abs(dt - 1e-5) < 1e-10)
+        header.p.tex_title = "Rouse model";
       experiments.push_back(header);
     }
   }
@@ -280,13 +321,29 @@ vector <data_header> get_experiments() {
     data_header header = header_base; 
     header.p.dt = 5e-6;
     header.p.C = 1e-6;
-    header.p.Ntrials = 6;
+    header.p.Ntrials = 20;
     header.p.Nt = 1e6;
     header.p.Np = 16;
 
     char title[1024];
     sprintf(title, "Vanderzande-Vandebroek C %.1e", header.p.C);
     header.p.title = title;
+    experiments.push_back(header);
+  }
+
+  // Vandebroek-Vanderzande
+  {
+    data_header header = header_base; 
+    header.p.dt = 1e-7;
+    header.p.C = 1e-6;
+    header.p.Ntrials = 100;
+    header.p.Nt = 1e5;
+    header.p.Np = 64;
+
+    char title[1024];
+    sprintf(title, "Vanderzande-Vandebroek 2");
+    header.p.title = title;
+    header.p.tex_title = "zande-broek";
     experiments.push_back(header);
   }
 
@@ -301,7 +358,7 @@ vector <data_header> get_experiments() {
       //header.p.Nt = 1e6;
       header.p.a = 10;
       header.p.k = 1e-6;
-      header.p.Ntrials = 6;
+      header.p.Ntrials = 100;
       //header.p.dt = 5e-6;
       if (C == 0) {
         header.p.dt = 1e-8;
@@ -315,6 +372,7 @@ vector <data_header> get_experiments() {
           header.p.beta(),
           header.p.C);
       header.p.title = title;
+      header.p.tex_title = "Semiflexible";
       experiments.push_back(header);
     }
   }

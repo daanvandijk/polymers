@@ -1,1 +1,4 @@
 *.swp
+pypolymer.py
+_pypolymer.so
+*_wrap.cxx

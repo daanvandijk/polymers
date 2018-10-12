@@ -44,6 +44,7 @@ struct experiment_parameters {
   double mu_theta;
   double sigma_theta;
   std::string space; // linear or log
+  std::string tex_title; // doesn't get archive'd 
 
   template<class Archive>
   void serialize(Archive &archive) {
