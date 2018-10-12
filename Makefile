@@ -7,6 +7,9 @@ all: cpp
 experiments : cpp
 	cd data && ../bin/main "../experiments.json" experiment
 
+list:
+	bin/main "experiments.json" list
+
 cpp: 
 	$(MAKE) -C ./src all 
 
