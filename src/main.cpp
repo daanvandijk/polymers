@@ -25,7 +25,7 @@ std::ostream& operator << (std::ostream &os, const data_header &s) {
 void help() {
   cout << "Polymer simulations\n";
   cout << "~Daan van Dijk 2017-2018\n\n";
-  cout << "usage: main [mode]\n";
+  cout << "usage: main [json path] [mode]\n";
   cout << "Modes:\n";
   cout << "  experiment : perform predefined experiment\n";
   cout << "  read [title] : perform analysis of trials\n";
@@ -33,8 +33,8 @@ void help() {
   cout << "  tex : list experiments in latex table format\n";
 }
 
-void perform_experiments() {
-  vector<data_header> experiments = get_experiments();
+void perform_experiments(const char *path) {
+  vector<data_header> experiments = get_experiments(path);
 
   // loop through experiments
   int num_threads = std::max((int) thread::hardware_concurrency()-2, 1);
@@ -132,16 +132,12 @@ void perform_experiment(data_header const & exp, polymer_trial &trial, int i) {
       i == 0); 
 }
 
-void list_experiments() {
-  vector<data_header> experiments = get_experiments();
+void list_experiments(const char *path) {
+  vector<data_header> experiments = get_experiments(path);
 
-  ofstream handle("experiments.json");
-  cereal::JSONOutputArchive archive(handle);
   for (auto &exp : experiments) {
     std::cout << exp << std::endl;
-    archive(CEREAL_NVP(exp.p));
   }
-  handle.close();
 }
 
 polymer_trial* read_experiment_raw(const char* path) {
@@ -196,8 +192,8 @@ analysis::ensemble* read_experiment(const char *path) {
   return ensemble;
 }
 
-void tex() {
-  auto experiments = get_experiments();
+void tex(const char *path) {
+  auto experiments = get_experiments(path);
   cout << "\\begin{table}[h]" << endl;
   cout << "\\centering" << endl;
   cout << "\\footnotesize" << endl;
@@ -232,19 +228,21 @@ void tex() {
 }
 
 int main(int argc, char **argv) {
-  if (argc == 1) 
+  if (argc <= 2) 
     help();
-  else if (argc > 1) {
-    if (strcmp(argv[1], "experiment") == 0) 
-      perform_experiments();
-    else if (strcmp(argv[1], "read") == 0 && argc > 2) {
-      auto ensemble = read_experiment(argv[2]);
+  else if (argc > 2) { 
+    // path to json file containing experiment parameters
+    const char *path = argv[1]; 
+    if (strcmp(argv[2], "experiment") == 0) 
+      perform_experiments(path);
+    else if (strcmp(argv[2], "read") == 0 && argc > 3) {
+      auto ensemble = read_experiment(argv[3]);
       free(ensemble);
     }
-    else if (strcmp(argv[1], "list") == 0) 
-      list_experiments();
-    else if (strcmp(argv[1], "tex") == 0)
-      tex();
+    else if (strcmp(argv[2], "list") == 0) 
+      list_experiments(path);
+    else if (strcmp(argv[2], "tex") == 0)
+      tex(path);
     else
       help();
   }
@@ -252,129 +250,19 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-vector <data_header> get_experiments() {
-  vector<data_header> experiments;
+vector <data_header> get_experiments(const char* path) {
+  vector <data_header> headers;
+  vector<experiment_parameters> parameters;
 
-  data_header header_base; 
-  header_base.p.Ntrials = 100;
-  header_base.p.Np = 64;
-  header_base.p.Nt = 1e5;
-  header_base.p.a = 0.0;
-  header_base.p.k = 1e5;
-  header_base.p.l = 1e-7;
-  header_base.p.k_BT = 1e-7;
-  header_base.p.C = 0.0;
-  header_base.p.dt = 1e-7;
-  header_base.p.datapoints = 300;
-  header_base.p.mu_l = header_base.p.l;
-  header_base.p.sigma_l = header_base.p.mu_l / 5;
-  header_base.p.mu_theta = 0.0;
-  header_base.p.sigma_theta = 0.0;
-  header_base.p.space = "log";
-  header_base.p.tex_title = "";
-
-
-  // Standard Rouse model for different dt
-  {
-    vector<double> list = {1e-10, 1e-9, 1e-8, 1e-7, 1e-6, 1e-5}; 
-    for (auto dt : list) {
-      data_header header = header_base; 
-      header.p.dt = dt;
-
-      char title[1024];
-      sprintf(title, "Rouse dt %.1e", dt);
-      header.p.title = title;
-      if (abs(dt - 1e-8) < 1e-10 || abs(dt - 1e-5) < 1e-10)
-        header.p.tex_title = "Rouse model";
-      experiments.push_back(header);
-    }
-  }
-  
-  // vary l
-  {
-    vector<double> list = {1e-9, 1e-8, 1e-7, 1e-6, 1e-5};
-    for (auto l : list) {
-      data_header header = header_base; 
-      header.p.l = l;
-
-      char title[1024];
-      sprintf(title, "Rouse l %.1e", l);
-      header.p.title = title;
-      experiments.push_back(header);
-    }
+  ifstream handle(path);
+  cereal::JSONInputArchive archive(handle);
+  archive(parameters);
+  handle.close();
+  for (auto &p: parameters) {
+    data_header h;
+    h.p = p;
+    headers.push_back(h);
   }
 
-  // vary k_BT
-  {
-    vector<double> list = {1e-11, 1e-9, 1e-7, 1e-6, 1e-5, 1e-4};
-    for (auto k_BT : list) {
-      data_header header = header_base; 
-      header.p.k_BT = k_BT;
-
-      char title[1024];
-      sprintf(title, "Rouse k_BT %.1e", k_BT);
-      header.p.title = title;
-      experiments.push_back(header);
-    }
-  }
-
-  // Vandebroek-Vanderzande
-  {
-    data_header header = header_base; 
-    header.p.dt = 5e-6;
-    header.p.C = 1e-6;
-    header.p.Ntrials = 20;
-    header.p.Nt = 1e6;
-    header.p.Np = 16;
-
-    char title[1024];
-    sprintf(title, "Vanderzande-Vandebroek C %.1e", header.p.C);
-    header.p.title = title;
-    experiments.push_back(header);
-  }
-
-  // Vandebroek-Vanderzande
-  {
-    data_header header = header_base; 
-    header.p.dt = 1e-7;
-    header.p.C = 1e-6;
-    header.p.Ntrials = 100;
-    header.p.Nt = 1e5;
-    header.p.Np = 64;
-
-    char title[1024];
-    sprintf(title, "Vanderzande-Vandebroek 2");
-    header.p.title = title;
-    header.p.tex_title = "zande-broek";
-    experiments.push_back(header);
-  }
-
-  // Semiflexible, let's choose small k
-  {
-    vector<double> list = {1e-6, 0.0};
-
-    for (auto C : list) {
-      data_header header = header_base; 
-      header.p.C = C;
-      //header.p.Np = 16;
-      //header.p.Nt = 1e6;
-      header.p.a = 10;
-      header.p.k = 1e-6;
-      header.p.Ntrials = 100;
-      //header.p.dt = 5e-6;
-      if (C == 0) {
-        header.p.dt = 1e-8;
-        //header.p.Np = 64;
-      }
-      //header.p.k_BT = 1e-2;
-
-      char title[1024];
-      sprintf(title, "Semiflexible C %.1e ", header.p.C);
-      header.p.title = title;
-      header.p.tex_title = "Semiflexible";
-      experiments.push_back(header);
-    }
-  }
-
-  return experiments;
+  return headers;
 }

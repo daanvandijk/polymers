@@ -5,7 +5,7 @@ BDIR = ./bin/
 all: cpp
 
 experiments : cpp
-	cd data && ../bin/main experiment
+	cd data && ../bin/main "../experiments.json" experiment
 
 cpp: 
 	$(MAKE) -C ./src all 

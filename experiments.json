@@ -1,0 +1,22 @@
+{
+  "vec": [
+    {
+      "title": "Rouse dt 1.0e-10",
+      "Ntrials": 100,
+      "Np": 64,
+      "Nt": 100000,
+      "a": 0.0,
+      "k": 100000.0,
+      "l": 1e-7,
+      "k_BT": 1e-7,
+      "C": 0.0,
+      "datapoints": 300,
+      "dt": 1e-10,
+      "mu_l": 1e-7,
+      "sigma_l": 2e-8,
+      "mu_theta": 0.0,
+      "sigma_theta": 0.0,
+      "space": "log"
+    }
+  ]
+}
