@@ -87,14 +87,6 @@ struct experiment_parameters {
       (sigma_theta == x.sigma_theta) &&
       (space == x.space);
   }
-
-  double alpha() const {
-    return a * pow(M_PI, 4) / 2;
-  }
-
-  double beta() const {
-    return a * pow(M_PI, 2) / (8 * k);
-  }
 };
 
 // [ data_header | size = s ] [ polymer_trial #1 ] ... [ polymer_trial #s ]

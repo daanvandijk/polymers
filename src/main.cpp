@@ -19,8 +19,6 @@ std::ostream& operator << (std::ostream &os, const data_header &s) {
     "k = " << s.p.k <<
     ", a = " << s.p.a <<
     ", C = " << s.p.C <<
-    ", alpha = " << s.p.alpha() <<
-    ", beta = " << s.p.beta() << 
     " | " << s.p.title;
 }
 

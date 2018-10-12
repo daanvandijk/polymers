@@ -16,10 +16,6 @@ img: cpp
 test: cpp 
 	$(BDIR)test
 
-#latex: main.pdf presentation.pdf
-#main.pdf: main.tex
-	#pdflatex main.tex > /dev/null
-
 clear: clean
 clean:
 	$(MAKE) -C ./src clean
@@ -27,3 +23,7 @@ clean:
 	\rm *.pdf || true
 clean-data:
 	\rm ./data/*.dat
+
+#latex: main.pdf presentation.pdf
+#main.pdf: main.tex
+	#pdflatex main.tex > /dev/null
