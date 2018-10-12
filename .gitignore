@@ -2,3 +2,5 @@
 pypolymer.py
 _pypolymer.so
 *_wrap.cxx
+/bin
+/obj
