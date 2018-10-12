@@ -5,3 +5,4 @@ _pypolymer.so
 .ycm_extra_conf.py
 /bin
 /obj
+*.dat
