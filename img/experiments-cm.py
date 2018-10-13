@@ -16,7 +16,6 @@ with open('../experiments.json') as handler:
 # for each experiment, make a plot of cm
 for p in parameters:
     path = '../data/%s.dat' % (p['title'])
-    img_path = 'experiments-cm-%s.png' % (p['title'])
     data = pypolymer.read_experiment(path)
     print(path)
 
@@ -28,6 +27,16 @@ for p in parameters:
     plt.xlabel("t")
     plt.ylabel("\sigma_{\\text{cm}}")
     plt.title("Rouse model")
-    # plt.legend()
-    plt.savefig(img_path, bbox_inches='tight')
+    plt.savefig('experiments-cm-%s.png' % (p['title']), bbox_inches='tight')
+    plt.close()
+
+    plt.figure(figsize=(cm_to_inch(8), cm_to_inch(6)), dpi=300)
+    plt.loglog(data.time[0, 1:], data.mm_sigma[0, 1:])
+    T = [data.time[0,1], data.time[0,-1]]
+    Y = numpy.power(T, 0.5) * (data.mm_sigma[0,1]/numpy.sqrt(data.time[0,1]))
+    plt.loglog(T, Y, 'k--') 
+    plt.xlabel("t")
+    plt.ylabel("\sigma_{\\text{mm}}")
+    plt.title("Rouse model")
+    plt.savefig('experiments-mm-%s.png' % (p['title']), bbox_inches='tight')
     plt.close()

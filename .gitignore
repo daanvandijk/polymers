@@ -6,3 +6,5 @@ _pypolymer.so
 /bin
 /obj
 *.dat
+*.png
+img/__pycache__/
