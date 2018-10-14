@@ -10,6 +10,7 @@ Perform long-time stable simulations of the Semiflexible chainmodel.
 - Add generated images to repository
 - Add install and execute instructions
 - Add results
+- Don't use the auto keyword in C++, see [Eigen doc](https://eigen.tuxfamily.org/dox/TopicPitfalls.html)
 - ... 
 
 ## Compiling
