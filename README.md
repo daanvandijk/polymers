@@ -4,6 +4,7 @@
 Perform long-time stable simulations of the Semiflexible chainmodel. 
 
 ## To-do list
+- Try out different time integration schemes 
 - Publish compiled source on website
 - Define Rouse timescale with respect to the experiments. 
 - Configure comparison images.
