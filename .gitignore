@@ -8,3 +8,5 @@ _pypolymer.so
 *.dat
 *.png
 img/__pycache__/
+publish/
+publish.zip
