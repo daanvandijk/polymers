@@ -1,39 +1,19 @@
 #include "polymer.h"
 #include "spring.h"
 #include "angle.h"
+#include "experiment.h"
 #include <mutex>
 
 #ifndef _TIME_INTEGRATION_
 #define _TIME_INTEGRATION_
-using namespace Eigen;
-
 namespace time_integration {
   static std::mutex mtx;
-  void one_polymer(int Nt, 
-      double dt, 
-      double a,
-      double k,
-      double l,
-      double k_BT,
-      double C,
+  void one_polymer(
+      const experiment_parameters &p,
       MatrixXd const &Ri, 
-      int Ndata, 
       MatrixXd &R, 
-      MatrixXd &time,
-      std::string space,
+      Eigen::MatrixXd&time,
       bool gui_update); 
-  void one_polymer(int Nt, 
-      double dt, 
-      double a,
-      double k,
-      double l,
-      double k_BT,
-      double C,
-      MatrixXd const &Ri, 
-      int Ndata, 
-      MatrixXd &R, 
-      std::string space,
-      MatrixXd&time); 
   void test(); 
   class datapoints {
     protected:

@@ -4,8 +4,10 @@
 #include <chrono>
 #include <random>
 #include <stdlib.h>
+#include <math.h>
 
 using namespace std;
+using namespace Eigen;
 
 void time_integration::datapoints::linspace(double a, double b, Eigen::ArrayXd &space) {
   assert(space.size() > 1);
@@ -19,7 +21,7 @@ void time_integration::datapoints::linspace(double a, double b, Eigen::ArrayXd &
 void time_integration::datapoints::logspace(double a, double b, Eigen::ArrayXd &space) {
   assert(space.size() > 1);
   assert(a > 0.0 && b > 0.0);
-  int n = space.size();
+  int n = (int) space.size();
   double factora = log(a);
   double factorb = log(b);
   double delta = (factorb-factora)/((double)n-1.0);
@@ -28,34 +30,11 @@ void time_integration::datapoints::logspace(double a, double b, Eigen::ArrayXd &
   }
 }
 
-void time_integration::one_polymer(int Nt, 
-    double dt, 
-    double a,
-    double k,
-    double l,
-    double k_BT,
-    double C,
+void time_integration::one_polymer(
+    const experiment_parameters &p, 
     MatrixXd const &Ri, 
-    int Ndata, 
-    MatrixXd &R, 
-    std::string space,
-    MatrixXd &time)
-{
-  one_polymer(Nt, dt, a, k, l, k_BT, C, Ri, Ndata, R, time, space, true);
-}
-
-void time_integration::one_polymer(int Nt, 
-    double dt,
-    double a,
-    double k,
-    double l,
-    double k_BT,
-    double C,
-    MatrixXd const &Ri, 
-    int Ndata, 
     MatrixXd &R, 
     MatrixXd &time,
-    std::string space,
     bool gui_update) {
 
   int Np;
@@ -66,27 +45,21 @@ void time_integration::one_polymer(int Nt,
   bool spring_forces, angle_forces, thermal_forces, active_forces;
 
   // Check if input is consistent
+  assert(p.check() == true);
   assert(Ri.cols() > 0 && Ri.rows() == 3);
-  assert(Nt > 0);
-  assert(a >= 0);
-  assert(k >= 0);
-  assert(l > 0);
-  assert(k_BT >= 0);
-  assert(C >= 0);
-  assert(Ndata > 1);
-  assert(R.rows() == 3 * Ndata && R.cols() == Ri.cols());
+  assert(R.rows() == 3 * p.datapoints && R.cols() == Ri.cols());
 
   // Check if this simulation uses thermal forces
-  if (k_BT == 0) thermal_forces = false;
+  if (p.k_BT == 0) thermal_forces = false;
   else thermal_forces = true; 
   // Check if this simulation uses active forces
-  if (C == 0) active_forces = false;
+  if (p.C == 0) active_forces = false;
   else active_forces = true; 
   // Check if this simulation uses spring forces
-  if (k == 0) spring_forces = false;
+  if (p.k == 0) spring_forces = false;
   else spring_forces = true;
   // Check if this simulation uses angle forces
-  if (a == 0) angle_forces = false;
+  if (p.a == 0) angle_forces = false;
   else angle_forces = true;
   // Number of particles
   Np = Ri.cols();
@@ -105,48 +78,48 @@ void time_integration::one_polymer(int Nt,
     xi_T = MatrixXd::Zero(3, Np);
 
   // the index for the datapoints
-  time_integration::datapoints points(Nt, Ndata, dt, space);
+  time_integration::datapoints points(p.Nt, p.datapoints, p.dt, p.space);
 
   // I don't want to use all my mem for active forces :P
   vector<stochastic::normrnd_endless> ActiveForceGenerators;
   if (active_forces) {
     // todo: M could maybe be smaller
     int M = 100;
-    stochastic::generate_active_init(C, dt, M, Np, ActiveForceGenerators);
+    stochastic::generate_active_init(p.C, p.dt, M, Np, ActiveForceGenerators);
     xi_A = MatrixXd::Zero(3, Np);
   }
 
   // loop through time
-  for (int it = 0; it < Nt; it++) {
-    if (spring_forces) spring::force(Rold, k, l, k1);
-    if (angle_forces) angle::force(Rold, a, k1);
-    k1 = dt * k1;
+  for (int it = 0; it < p.Nt; it++) {
+    if (spring_forces) spring::force(Rold, p.k, p.l, k1);
+    if (angle_forces) angle::force(Rold, p.a, k1);
+    k1 = p.dt * k1;
     buf = Rold + 0.5*k1;
-    if (spring_forces) spring::force(buf, k, l, k2);
-    if (angle_forces) angle::force(buf, a, k2);
-    k2 = dt * k2;
+    if (spring_forces) spring::force(buf, p.k, p.l, k2);
+    if (angle_forces) angle::force(buf, p.a, k2);
+    k2 = p.dt * k2;
     buf = Rold + 0.5*k2;
-    if (spring_forces) spring::force(buf, k, l, k3);
-    if (angle_forces) angle::force(buf, a, k3);
-    k3 = dt * k3;
+    if (spring_forces) spring::force(buf, p.k, p.l, k3);
+    if (angle_forces) angle::force(buf, p.a, k3);
+    k3 = p.dt * k3;
     buf = Rold + k3;
-    if (spring_forces) spring::force(buf, k, l, k4);
-    if (angle_forces) angle::force(buf, a, k4);
-    k4 = dt * k4;
+    if (spring_forces) spring::force(buf, p.k, p.l, k4);
+    if (angle_forces) angle::force(buf, p.a, k4);
+    k4 = p.dt * k4;
     Rnew = Rold + (k1 + 2*k2 + 2*k3 + k4)/6; 
     if (thermal_forces == true) {
-      stochastic::generate_thermal(k_BT, xi_T);
-      Rnew += sqrt(dt) * xi_T;
+      stochastic::generate_thermal(p.k_BT, xi_T);
+      Rnew += sqrt(p.dt) * xi_T;
     }
     if (active_forces == true) {
       stochastic::generate_active(xi_A, ActiveForceGenerators);
-      Rnew += sqrt(dt) * xi_A;
+      Rnew += sqrt(p.dt) * xi_A;
     }
 
     // check if we need to add another datapoint
     if (points.add_point(it)) {
       // calculate current time
-      current_time = it * dt;
+      current_time = it * p.dt;
       // save current time
       time(0, points.get_id()) = current_time;
       // save current state
@@ -166,7 +139,7 @@ void time_integration::one_polymer(int Nt,
         if (gui_update == true) {
           // avoid data race
           mtx.lock();
-          printf("\r%.2f%%", round(100 * (double)it/(double)Nt)); 
+          printf("\r%.2f%%", round(100 * (double)it/(double)p.Nt)); 
           fflush(stdout);
           mtx.unlock();
         }
@@ -248,16 +221,28 @@ void time_integration::test() {
 
   // check if center of mass is stable
   {
-    int Nd = 40;
-    int Np = 10;
-    MatrixXd Ri(3, Np);
-    MatrixXd R(3*Nd, Np);
-    MatrixXd time(1, Nd);
+    experiment_parameters p;
+    p.Nt = 100;
+    p.Np = 10;
+    p.datapoints = 40;
+    p.dt = 0.001;
+    p.a = 1.0;
+    p.k = 1.0;
+    p.l = 1.0;
+    p.k_BT = 0.0;
+    p.C = 0.0;
+    p.space = "linear";
+    p.method = "rk4";
+    p.datapoints = 40;
+
+    MatrixXd Ri(3, p.Np);
+    MatrixXd R(3*p.datapoints, p.Np);
+    MatrixXd time(1, p.datapoints);
     polymer::generate(1.0, 0.3, 0.0, 0.3, Ri);
-    one_polymer(100, 0.001, 1.0, 1.0, 1.0, 0.0, 0.0, Ri, Nd, R, time, "linear", false);
-    MatrixXd CenterOfMass = MatrixXd::Zero(3, Nd);
+    one_polymer(p, Ri, R, time, false);
+    MatrixXd CenterOfMass = MatrixXd::Zero(3, p.datapoints);
     // loop through datapoints
-    for (int idp = 0; idp < Nd; idp++) {
+    for (int idp = 0; idp < p.datapoints; idp++) {
       // loop through dimensions
       for (int d = 0; d < 3; d++) {
         CenterOfMass(d, idp) = R.row(d+idp*3).mean();
@@ -268,8 +253,8 @@ void time_integration::test() {
     for (int d = 0; d < 3; d++) {
       double mu = CenterOfMass.row(d).mean();
       double var = 0;
-      for (int idp = 0; idp < Nd; idp++)
-        var += pow(CenterOfMass(d, idp) - mu, 2) / ((double)Nd- 1.0);
+      for (int idp = 0; idp < p.datapoints; idp++)
+        var += pow(CenterOfMass(d, idp) - mu, 2) / ((double)p.datapoints-1.0);
       assert(var < 1.0e-10);
     }
   }

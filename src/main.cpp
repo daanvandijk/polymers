@@ -117,19 +117,7 @@ void perform_experiments(const char *path) {
 void perform_experiment(data_header const & exp, polymer_trial &trial, int i) {
   trial.R = MatrixXd::Zero(3 * exp.p.datapoints, exp.p.Np);
   trial.time = MatrixXd::Zero(1, exp.p.datapoints);
-  time_integration::one_polymer(exp.p.Nt, 
-      exp.p.dt, 
-      exp.p.a, 
-      exp.p.k, 
-      exp.p.l, 
-      exp.p.k_BT, 
-      exp.p.C,
-      exp.Ri, 
-      exp.p.datapoints, 
-      trial.R, 
-      trial.time,
-      exp.p.space,
-      i == 0); 
+  time_integration::one_polymer(exp.p, exp.Ri, trial.R, trial.time, i == 0);
 }
 
 void list_experiments(const char *path) {
