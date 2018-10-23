@@ -44,7 +44,7 @@ struct experiment_parameters {
       (C >= 0) &&
       (datapoints > 0) &&
       (space == "linear" || space == "log") && 
-      (method == "ef" || method == "rk4");
+      (method == "ef" || method == "rk4" || method == "milstein");
   }
 
   template<class Archive>
