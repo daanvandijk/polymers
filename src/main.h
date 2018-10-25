@@ -25,7 +25,6 @@ void list_experiments(const char *experiments_path);
 void perform_experiment(data_header const &exp, polymer_trial &trial, int i);
 analysis::ensemble* read_experiment(const char *path);
 polymer_trial* read_experiment_raw(const char* path);
-void tex(const char *experiments_path);
 
 std::vector<data_header> get_experiments(const char *experiments_path);
 #endif

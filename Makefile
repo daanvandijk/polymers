@@ -23,6 +23,9 @@ experiments : cpp
 list:
 	bin/main "experiments.json" list
 
+report: img
+	$(MAKE) -C ./report all
+
 cpp: 
 	$(MAKE) -C ./src all 
 

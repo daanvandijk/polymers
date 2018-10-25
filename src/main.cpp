@@ -31,7 +31,6 @@ void help() {
   cout << "  experiment : perform predefined experiment\n";
   cout << "  read [title] : perform analysis of trials\n";
   cout << "  list : list experiments\n";
-  cout << "  tex : list experiments in latex table format\n";
 }
 
 void perform_experiments(const char *path) {
@@ -181,41 +180,6 @@ analysis::ensemble* read_experiment(const char *path) {
   return ensemble;
 }
 
-void tex(const char *path) {
-  auto experiments = get_experiments(path);
-  cout << "\\begin{table}[h]" << endl;
-  cout << "\\centering" << endl;
-  cout << "\\footnotesize" << endl;
-  cout << "\\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}" << endl;
-  cout << "\\hline" << endl;
-  cout << "Name & $N_p$ & $N_t$ & $dt$ & $a$ & $k$ & $C$ & $k_BT$ & $l$ & $\\mu_l$ & $\\sigma_l$ & $\\mu_\\theta$ & $\\sigma_\\theta$ & Trials \\\\ \\hline" << endl;
-
-  for (auto &e: experiments) {
-    if (e.p.tex_title == "") continue;
-    cout.precision(3);
-    cout << 
-      e.p.tex_title << " & " << 
-      ((double) e.p.Np) << " & " << 
-      ((double) e.p.Nt) << " & " << 
-      e.p.dt << " & " <<
-      e.p.a << " & " <<
-      e.p.k << " & " <<
-      e.p.C << " & " <<
-      e.p.k_BT << " & " <<
-      e.p.l << " & " <<
-      e.p.mu_l << " & " <<
-      e.p.sigma_l << " & " <<
-      e.p.mu_theta << " & " <<
-      e.p.sigma_theta << " & " <<
-      e.p.Ntrials << " \\\\" << endl;
-  }
-  cout << "\\hline" << endl; 
-  cout << "\\end{tabular}" << endl;
-  cout << "\\caption{Experiment parameters}" << endl;
-  cout << "\\label{table:experiment parameters}" << endl;
-  cout << "\\end{table}" << endl;
-}
-
 int main(int argc, char **argv) {
   if (argc <= 2) 
     help();
@@ -230,8 +194,6 @@ int main(int argc, char **argv) {
     }
     else if (strcmp(argv[2], "list") == 0) 
       list_experiments(path);
-    else if (strcmp(argv[2], "tex") == 0)
-      tex(path);
     else
       help();
   }
