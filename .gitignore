@@ -10,3 +10,7 @@ _pypolymer.so
 img/__pycache__/
 publish/
 publish.zip
+report/comparisons.tex
+*.pdf
+*.aux
+*.log

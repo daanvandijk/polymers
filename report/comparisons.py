@@ -16,16 +16,18 @@ with open('comparisons.tex', 'w') as out:
 
     for c in comparison:
         comparison_name = ','.join(c)
+        l = ', '.join(c)
+
         out.write('\\begin{figure}[h]\n')
         out.write('\\centering\n')
-        out.write('\\begin{minipage}{0.5\\textwidth}\n')
+        out.write('\\begin{minipage}{0.45\\textwidth}\n')
         out.write('\\includegraphics[width=8cm]{../img/comparisons/cm %s}\n' % comparison_name)
-        out.write('\\caption{A figure}\n')
+        out.write('\\caption{Center of mass comparison between experiments %s}\n' % l)
         out.write('\\label{fig:cm %s}\n' % comparison_name)
-        out.write('\\end{minipage}%\n')
-        out.write('\\begin{minipage}{0.5\\textwidth}\n')
+        out.write('\\end{minipage} \\hfil\n')
+        out.write('\\begin{minipage}{0.45\\textwidth}\n')
         out.write('\\includegraphics[width=8cm]{../img/comparisons/mm %s}\n' % comparison_name)
-        out.write('\\caption{A figure}\n')
+        out.write('\\caption{Middle monomer comparison between %s}\n' % l)
         out.write('\\label{fig:mm %s}\n' % comparison_name)
         out.write('\\end{minipage}\n')
         out.write('\\end{figure}\n')
