@@ -19,6 +19,7 @@ std::ostream& operator << (std::ostream &os, const data_header &s) {
     "k = " << s.p.k <<
     ", a = " << s.p.a <<
     ", C = " << s.p.C <<
+    ", method = " << s.p.method <<
     " | " << s.p.title;
 }
 

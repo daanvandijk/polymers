@@ -1,4 +1,5 @@
 [
   ["rouse", "semi-non-active"],
-  ["semi-non-active", "semi-non-active-instable"]
+  ["semi-non-active", "semi-non-active-instable"],
+  ["semi-non-active", "semi-non-active-ef"]
 ]

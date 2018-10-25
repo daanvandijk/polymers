@@ -1,9 +1,6 @@
-all: img
-
-img: experiments-cm.png 
-
-experiments-cm.png: experiments-cm.py
+all:
 	./experiments-cm.py
+	./experiments-compare.py
 
 clear: clean
 clean:

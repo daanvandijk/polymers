@@ -26,7 +26,7 @@ for p in parameters:
     plt.loglog(T, Y, 'k--') 
     plt.xlabel("t")
     plt.ylabel("\sigma_{\\text{cm}}")
-    plt.title("Rouse model")
+    plt.title("Name: %s" % p['title'])
     plt.savefig('experiments-cm-%s.png' % (p['title']), bbox_inches='tight')
     plt.close()
 
@@ -37,6 +37,6 @@ for p in parameters:
     plt.loglog(T, Y, 'k--') 
     plt.xlabel("t")
     plt.ylabel("\sigma_{\\text{mm}}")
-    plt.title("Rouse model")
+    plt.title("Name: %s" % p['title'])
     plt.savefig('experiments-mm-%s.png' % (p['title']), bbox_inches='tight')
     plt.close()

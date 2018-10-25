@@ -16,7 +16,8 @@
       "sigma_l": 2e-8,
       "mu_theta": 0.0,
       "sigma_theta": 0.0,
-      "space": "log"
+      "space": "log",
+      "method": "rk4"
     },
     {
       "title": "semi-non-active",
@@ -34,7 +35,8 @@
       "sigma_l": 2e-8,
       "mu_theta": 0.0,
       "sigma_theta": 0.0,
-      "space": "log"
+      "space": "log",
+      "method": "rk4"
     },
     {
       "title": "semi-non-active-instable",
@@ -52,25 +54,27 @@
       "sigma_l": 2e-8,
       "mu_theta": 0.0,
       "sigma_theta": 0.0,
-      "space": "log"
+      "space": "log",
+      "method": "rk4"
     },
     {
-      "title": "semi-try",
-      "Ntrials": 18,
-      "Np": 16,
-      "Nt": 10000000,
+      "title": "semi-non-active-ef",
+      "Ntrials": 50,
+      "Np": 32,
+      "Nt": 1000000,
       "a": 10.0,
       "k": 1e-6,
       "l": 1e-7,
       "k_BT": 1e-7,
       "C": 0.0,
       "datapoints": 300,
-      "dt": 1e-10,
+      "dt": 1e-5,
       "mu_l": 1e-7,
       "sigma_l": 2e-8,
       "mu_theta": 0.0,
       "sigma_theta": 0.0,
-      "space": "log"
+      "space": "log",
+      "method": "ef"
     }
   ]
 }
